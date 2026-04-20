@@ -43,9 +43,9 @@ jobs:
 
       - name: Build APK
         run: |
-          # Use yes "" to bypass any remaining prompts and run with skipPwaValidation
-          yes "" | bubblewrap update --skipPwaValidation
-          yes "" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
+          # Use yes to accept licenses/prompts and provide explicit version details
+          yes | bubblewrap update --appVersionName "1.0.0" --skipVersionUpgrade --skipPwaValidation
+          yes | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
