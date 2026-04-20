@@ -1,0 +1,21 @@
+{
+  "name": "zapchat",
+  "version": "1.0.0",
+  "description": "Aplicativo de chat em tempo real com login Google",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "deploy": "echo 'Utilize o GitHub Actions para deploy autom\u00e1tico'"
+  },
+  "keywords": [
+    "chat",
+    "firebase",
+    "pwa",
+    "twa"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^14.2.3"
+  }
+}

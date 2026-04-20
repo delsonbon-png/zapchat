@@ -1,0 +1,138 @@
+/* ======================================
+   ZapChat — Design Tokens
+   Inspirado no WhatsApp
+   ====================================== */
+
+:root {
+  /* ── Essential HSL Colors ── */
+  --primary-h: 200;
+  --primary-s: 18%;
+  --primary-l: 12%;
+
+  --secondary-h: 142;
+  --secondary-s: 70%;
+  --secondary-l: 45%;
+
+  /* ── Theme Colors ── */
+  --color-primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+  --color-primary-dark: hsl(var(--primary-h), var(--primary-s), calc(var(--primary-l) - 4%));
+  --color-primary-light: #128C7E;
+  --color-secondary: hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l));
+  --color-secondary-dark: hsl(var(--secondary-h), var(--secondary-s), calc(var(--secondary-l) - 10%));
+  --color-accent: #34B7F1;
+
+  /* ── Cores de Fundo ── */
+  --bg-app: #0b141a;
+  --bg-panel: #111b21;
+  --bg-header: #202c33;
+  --bg-chat: #0b141a;
+  --bg-chat-pattern: rgba(11, 20, 26, 0.95);
+  --bg-input: #2a3942;
+  --bg-search: #202c33;
+  --bg-dropdown: #233138;
+  --bg-hover: rgba(134, 150, 160, 0.1);
+  --bg-active: rgba(134, 150, 160, 0.15);
+
+  /* ── Glassmorphism ── */
+  --glass-bg: rgba(32, 44, 51, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(12px);
+
+  /* ── Gradients ── */
+  --gradient-premium: linear-gradient(135deg, #005C4B 0%, #025144 100%);
+  --gradient-login: radial-gradient(circle at top left, #202c33 0%, #0b141a 100%);
+
+  /* ── Bolhas de Mensagem ── */
+  --bubble-out: #005C4B;
+  --bubble-out-darker: #025144;
+  --bubble-in: #202C33;
+  --bubble-in-darker: #1A252C;
+  --bg-bubble-in: #202C33;
+  --bg-bubble-out: #005C4B;
+
+  /* ── Texto ── */
+  --text-primary: #E9EDEF;
+  --text-secondary: #8696A0;
+  --text-tertiary: #667781;
+  --text-on-primary: #FFFFFF;
+  --text-link: #53BDEB;
+  --text-green: #00A884;
+  --text-danger: #EA4335;
+
+  /* ── Bordas & Divisores ── */
+  --border-default: rgba(134, 150, 160, 0.15);
+  --border-light: rgba(134, 150, 160, 0.08);
+  --border-input: rgba(134, 150, 160, 0.2);
+
+  /* ── Sombras ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-float: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+  /* ── Tipografia ── */
+  --font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, 'Lucida Grande', Arial, 'Ubuntu', 'Cantarell', 'Fira Sans', sans-serif;
+  --font-size-xs: 0.6875rem;   /* 11px */
+  --font-size-sm: 0.75rem;     /* 12px */
+  --font-size-base: 0.875rem;  /* 14px */
+  --font-size-md: 0.9375rem;   /* 15px */
+  --font-size-lg: 1rem;        /* 16px */
+  --font-size-xl: 1.125rem;    /* 18px */
+  --font-size-2xl: 1.25rem;    /* 20px */
+  --font-size-3xl: 1.5rem;     /* 24px */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ── Espaçamentos ── */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ── Border Radius ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-full: 9999px;
+
+  /* ── Sizing ── */
+  --header-height: 56px;
+  --input-bar-height: 56px;
+  --avatar-sm: 32px;
+  --avatar-md: 40px;
+  --avatar-lg: 48px;
+  --avatar-xl: 64px;
+  --avatar-2xl: 120px;
+  --fab-size: 56px;
+  --icon-sm: 20px;
+  --icon-md: 24px;
+  --icon-lg: 28px;
+
+  /* ── Transições ── */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+  --transition-spring: 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ── Z-Index ── */
+  --z-base: 1;
+  --z-header: 100;
+  --z-fab: 200;
+  --z-modal: 500;
+  --z-dropdown: 600;
+  --z-overlay: 700;
+  --z-toast: 900;
+  --z-emoji: 800;
+}

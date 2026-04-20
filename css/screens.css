@@ -1,0 +1,363 @@
+/* ======================================
+   ZapChat — Screen Layouts
+   ====================================== */
+
+/* ── Screen Container ── */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  transition: transform var(--transition-slow), opacity var(--transition-slow);
+  will-change: transform, opacity;
+}
+
+.screen.screen-hidden {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.screen.screen-hidden-left {
+  transform: translateX(-30%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+   ══════════════════════════════════════ */
+
+.login-screen {
+  background: var(--gradient-login);
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-screen::before {
+  content: '';
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.05) 0%, transparent 70%);
+  top: -25%;
+  left: -25%;
+  animation: pulse 10s infinite alternate ease-in-out;
+  pointer-events: none;
+}
+
+.login-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: var(--space-10) var(--space-8);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  z-index: 1;
+  animation: scaleIn 0.5s var(--transition-spring);
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  background: var(--color-secondary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+}
+
+.login-logo svg {
+  width: 48px;
+  height: 48px;
+  fill: white;
+}
+
+.login-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.login-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: calc(-1 * var(--space-3));
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-6);
+  background: white;
+  color: #1f1f1f;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+.google-btn:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.google-btn:active {
+  transform: scale(0.97);
+}
+
+.google-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.login-terms {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════
+   CHATS LIST SCREEN
+   ══════════════════════════════════════ */
+
+.chats-screen .header {
+  background: var(--bg-header);
+}
+
+.chats-screen .header-title {
+  color: var(--text-primary);
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tabs-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-header);
+  padding: 0 var(--space-4);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: var(--space-3) 0;
+  text-align: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.tab-btn.active {
+  color: var(--color-secondary);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: var(--color-secondary);
+  border-radius: 3px 3px 0 0;
+}
+
+/* ══════════════════════════════════════
+   CHAT SCREEN (Individual)
+   ══════════════════════════════════════ */
+
+.chat-screen {
+  z-index: 5;
+}
+
+.chat-screen .header {
+  background: var(--bg-header);
+}
+
+.chat-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.chat-header-text {
+  min-width: 0;
+}
+
+.chat-header-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header-status {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-2) 0;
+  background: var(--bg-chat);
+  position: relative;
+}
+
+/* Chat background pattern */
+.chat-messages::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.chat-messages > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════
+   CONTACTS SCREEN
+   ══════════════════════════════════════ */
+
+.contacts-screen {
+  z-index: 6;
+}
+
+.contacts-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contacts-section-label {
+  padding: var(--space-4) var(--space-8) var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-contact-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-3);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.add-contact-item:hover {
+  background: var(--bg-hover);
+}
+
+.add-contact-icon {
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-contact-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
+}
+
+.add-contact-text {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+/* ══════════════════════════════════════
+   PROFILE SCREEN
+   ══════════════════════════════════════ */
+
+.profile-screen {
+  z-index: 7;
+}
+
+.profile-header {
+  background: var(--bg-header);
+  padding: var(--space-8) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.profile-name {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.profile-email {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}
+
+.profile-section {
+  padding: var(--space-4);
+}
+
+.profile-field {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.profile-field-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.profile-field-value {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.profile-logout {
+  margin: var(--space-6) var(--space-4);
+}

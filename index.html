@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1F2C33">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="ZapChat - Aplicativo de chat em tempo real com login Google">
+  <title>ZapChat</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/animations.css">
+
+  <!-- Firebase SDK (apenas Auth + Firestore — 100% gratuito) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- ═══════════════════════════════════
+         LOGIN SCREEN
+         ═══════════════════════════════════ -->
+    <div id="login-screen" class="screen login-screen">
+      <div class="login-card">
+        <div class="login-logo">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z" />
+          </svg>
+        </div>
+        <h1 class="login-title">ZapChat</h1>
+        <p class="login-subtitle">Envie mensagens, fotos e arquivos para seus amigos em tempo real.</p>
+        <button id="google-login-btn" class="google-btn" type="button">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335" />
+          </svg>
+          Entrar com Google
+        </button>
+        <p class="login-terms">Ao entrar, você concorda com nossos Termos de Uso e Política de Privacidade.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         CHATS LIST SCREEN
+         ═══════════════════════════════════ -->
+    <section id="chats-screen" class="screen chats-screen screen-hidden">
+      <!-- Header Normal (Restaurado) -->
+      <header class="app-header" id="chats-header-normal">
+        <h1 class="app-title">ZapChat</h1>
+        <div class="header-actions">
+          <button id="search-btn" class="icon-btn search-btn" type="button" title="Buscar">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+          </button>
+          <div style="position: relative;">
+            <button id="home-more-btn" class="icon-btn more-btn" type="button" title="Mais opções">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+              </svg>
+            </button>
+            <div id="home-dropdown-menu" class="dropdown-menu hidden">
+              <button class="dropdown-item" id="dropdown-profile-btn" type="button">Perfil</button>
+              <button class="dropdown-item" id="dropdown-clear-btn" type="button">Limpar todas as conversas</button>
+              <button class="dropdown-item dropdown-danger" id="dropdown-logout-btn" type="button">Sair</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Header Seleção (WhatsApp Style) -->
+      <header class="app-header selection-header hidden" id="chats-header-selection">
+        <button id="chats-selection-cancel" class="icon-btn" type="button">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+          </svg>
+        </button>
+        <div class="header-info">
+          <span class="header-title" id="chats-selection-count">1</span>
+        </div>
+        <div class="header-actions">
+          <button id="chats-selection-delete" class="icon-btn" type="button" title="Apagar conversas">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Search Bar (togglable) -->
+      <div id="chats-search-bar" class="search-bar hidden">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+        <input id="chats-search-input" type="text" placeholder="Buscar conversa..." autocomplete="off">
+      </div>
+
+      <div id="chat-list" class="chat-list">
+        <!-- Chat items rendered by JS -->
+        <div class="empty-state" id="chats-empty">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z" />
+            </svg>
+          </div>
+          <h2 class="empty-state-title">Nenhuma conversa</h2>
+          <p class="empty-state-desc">Toque no ícone abaixo para iniciar uma nova conversa</p>
+        </div>
+      </div>
+
+      <!-- FAB - New Chat -->
+      <button id="new-chat-fab" class="fab" title="Nova conversa" type="button">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM13 5h-2v4H7v2h4v4h2v-4h4V9h-4z" />
+        </svg>
+      </button>
+    </section>
+
+  <!-- ═══════════════════════════════════
+         CHAT SCREEN
+         ═══════════════════════════════════ -->
+  <div id="chat-screen" class="screen chat-screen screen-hidden">
+    <!-- Cabeçalho Normal do Chat -->
+    <div id="chat-header-normal" class="header safe-top">
+      <button id="chat-back-btn" class="header-back" type="button">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="var(--text-primary)">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div id="chat-header-info" class="chat-header-info">
+        <div class="chat-header-text">
+          <div id="chat-header-name" class="chat-header-name"></div>
+          <div id="chat-header-status" class="chat-header-status"></div>
+        </div>
+      </div>
+      <button id="chat-call-btn" class="icon-btn" type="button" style="display:none">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+        </svg>
+      </button>
+      <button id="chat-profile-btn" class="icon-btn" type="button"
+        style="padding: 0; outline: none; border: none; background: transparent; overflow: hidden;" title="Ver Perfil">
+        <div class="avatar avatar-sm" id="chat-avatar" style="margin: 0; pointer-events: none;">
+          <span class="avatar-placeholder">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+          </span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Cabeçalho de Seleção do Chat -->
+    <div id="chat-header-selection" class="header safe-top hidden" style="background:var(--primary);color:#fff">
+      <button id="selection-close-btn" class="header-back" type="button">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+      <div class="header-title" style="flex:1" id="selection-count">1</div>
+      <button id="selection-share" class="icon-btn" type="button" title="Compartilhar">
+        <svg viewBox="0 0 24 24" fill="white">
+          <path
+            d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+        </svg>
+      </button>
+      <button id="selection-delete" class="icon-btn" type="button" title="Apagar">
+        <svg viewBox="0 0 24 24" fill="white">
+          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="chat-messages" class="chat-messages">
+      <!-- Messages rendered by JS -->
+    </div>
+
+    <!-- Emoji Picker -->
+    <div id="emoji-picker" class="emoji-picker hidden">
+      <input id="emoji-search" class="emoji-search" type="text" placeholder="Buscar emoji..." autocomplete="off">
+      <div class="emoji-categories" id="emoji-categories">
+        <button class="emoji-cat-btn active" data-cat="smileys" type="button">😀</button>
+        <button class="emoji-cat-btn" data-cat="people" type="button">👋</button>
+        <button class="emoji-cat-btn" data-cat="animals" type="button">🐶</button>
+        <button class="emoji-cat-btn" data-cat="food" type="button">🍕</button>
+        <button class="emoji-cat-btn" data-cat="travel" type="button">✈️</button>
+        <button class="emoji-cat-btn" data-cat="objects" type="button">💡</button>
+        <button class="emoji-cat-btn" data-cat="symbols" type="button">❤️</button>
+        <button class="emoji-cat-btn" data-cat="flags" type="button">🏁</button>
+      </div>
+      <div id="emoji-grid" class="emoji-grid">
+        <!-- Emojis rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Attachment Menu -->
+    <div id="attach-menu" class="attach-menu hidden">
+      <div class="attach-opt" id="attach-photo">
+        <div class="attach-opt-icon attach-photo">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+          </svg>
+        </div>
+        <span class="attach-opt-label">Galeria</span>
+      </div>
+      <div class="attach-opt" id="attach-camera">
+        <div class="attach-opt-icon attach-camera">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2S13.77 8.8 12 8.8 8.8 10.23 8.8 12s1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z" />
+          </svg>
+        </div>
+        <span class="attach-opt-label">Câmera</span>
+      </div>
+      <div class="attach-opt" id="attach-document">
+        <div class="attach-opt-icon attach-document">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
+          </svg>
+        </div>
+        <span class="attach-opt-label">Arquivo</span>
+      </div>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="input-bar safe-bottom">
+      <div class="input-container">
+        <button id="emoji-btn" class="icon-btn" title="Emoji" type="button">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+          </svg>
+        </button>
+        <div id="message-input" class="message-input" contenteditable="true" data-placeholder="Mensagem" role="textbox"
+          aria-label="Mensagem"></div>
+        <button id="attach-btn" class="icon-btn" title="Anexar" type="button">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 015 0v10.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V6H9v9.5a3 3 0 006 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Container Botões de Ação (Troca entre Enviar e Mic) -->
+      <div class="action-buttons-container">
+        <button id="send-btn" class="send-btn hidden" title="Enviar" type="button">
+          <svg viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
+        </button>
+        <button id="mic-btn" class="mic-btn" title="Mensagem de Voz" type="button">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Barra de Gravação (Sobrepõe o input-bar) -->
+      <div id="recording-bar" class="recording-bar hidden">
+        <div class="recording-info">
+          <span class="recording-dot"></span>
+          <span id="recording-timer" class="recording-timer">00:00</span>
+        </div>
+        <div class="recording-instruction">Arraste para cancelar</div>
+        <button id="cancel-recording-btn" class="icon-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="#EB4335"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="file-image" accept="image/*" style="display:none">
+    <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none">
+    <input type="file" id="file-document" accept="*/*" style="display:none">
+  </div>
+
+  <!-- ═══════════════════════════════════
+         CONTACTS SCREEN
+         ═══════════════════════════════════ -->
+  <div id="contacts-screen" class="screen contacts-screen screen-hidden">
+    <div class="header safe-top">
+      <button id="contacts-back-btn" class="header-back" type="button">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="var(--text-primary)">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div style="flex:1">
+        <div class="header-title" style="font-size:var(--font-size-lg)">Nova conversa</div>
+        <div class="header-subtitle" id="contacts-count"></div>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+      </svg>
+      <input id="contacts-search-input" type="text" placeholder="Buscar por nome, email ou ID..." autocomplete="off">
+    </div>
+
+    <div class="contacts-list" id="contacts-list">
+      <!-- Add contact option -->
+      <div class="add-contact-item" id="add-contact-btn">
+        <div class="add-contact-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </div>
+        <span class="add-contact-text">Adicionar contato</span>
+      </div>
+
+      <div class="contacts-section-label" id="contacts-label">Contatos</div>
+      <div id="contacts-items">
+        <!-- Contact items rendered by JS -->
+      </div>
+
+      <!-- Search results -->
+      <div id="search-results" class="hidden">
+        <div class="contacts-section-label">Resultados da busca</div>
+        <div id="search-results-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         CONTACT PROFILE SCREEN
+         ═══════════════════════════════════ -->
+  <div id="contact-profile-screen" class="screen profile-screen screen-hidden">
+    <div class="header safe-top">
+      <button id="contact-profile-back-btn" class="header-back" type="button">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="var(--text-primary)">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div class="header-title" style="font-size:var(--font-size-lg)">Dados do Contato</div>
+    </div>
+    <div class="profile-header">
+      <div class="avatar avatar-2xl" id="cprofile-avatar">
+        <span class="avatar-placeholder">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </span>
+      </div>
+      <div id="cprofile-name" class="profile-name"></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-field">
+        <div class="profile-field-label">Email</div>
+        <div class="profile-field-value" id="cprofile-email-field" style="font-size:var(--font-size-md)">carregando...
+        </div>
+      </div>
+      <div class="profile-field">
+        <div class="profile-field-label">ID de Usuário</div>
+        <div class="profile-field-value" id="cprofile-id"></div>
+      </div>
+      <div class="profile-field">
+        <div class="profile-field-label">Status</div>
+        <div class="profile-field-value" id="cprofile-status"></div>
+      </div>
+      <button id="cprofile-add-final-btn" class="btn btn-primary" style="width:100%;margin-top:var(--space-4)">
+        Adicionar aos Contatos
+      </button>
+      <button id="cprofile-edit-btn" class="btn btn-secondary hidden" style="width:100%;margin-top:var(--space-4)">
+        Editar Contato
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         PROFILE SCREEN
+         ═══════════════════════════════════ -->
+  <div id="profile-screen" class="screen profile-screen screen-hidden">
+    <div class="header safe-top">
+      <button id="profile-back-btn" class="header-back" type="button">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="var(--text-primary)">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+      <div class="header-title" style="font-size:var(--font-size-lg)">Perfil</div>
+    </div>
+    <div class="profile-header">
+      <div class="avatar avatar-2xl" id="profile-avatar">
+        <span class="avatar-placeholder">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </span>
+      </div>
+      <div id="profile-name" class="profile-name"></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-field">
+        <div class="profile-field-label">Seu Email</div>
+        <div class="profile-field-value" id="profile-email-field" style="font-size:var(--font-size-md)">carregando...
+        </div>
+      </div>
+      <div class="profile-field">
+        <div class="profile-field-label">Seu ID de Usuário</div>
+        <div class="profile-field-value" id="profile-id"></div>
+      </div>
+      <div class="profile-field">
+        <div class="profile-field-label">Status</div>
+        <div class="profile-field-value" id="profile-status">Disponível</div>
+      </div>
+    </div>
+    <div class="profile-logout">
+      <button id="logout-btn" class="btn btn-danger btn-full" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+          <path
+            d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+        </svg>
+        Sair da conta
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         ADD CONTACT MODAL
+         ═══════════════════════════════════ -->
+  <div id="add-contact-modal" class="overlay hidden">
+    <div class="modal">
+      <h2 class="modal-title">Adicionar Contato</h2>
+      <div class="modal-body">
+        <div style="margin-bottom:var(--space-4)">
+          <label
+            style="font-size:var(--font-size-sm);color:var(--text-secondary);display:block;margin-bottom:var(--space-1)">Email
+            ou ID do contato</label>
+          <input id="add-contact-email" class="text-field" type="text" placeholder="exemplo@gmail.com ou ID">
+        </div>
+        <div>
+          <label
+            style="font-size:var(--font-size-sm);color:var(--text-secondary);display:block;margin-bottom:var(--space-1)">Nome
+            do contato (opcional)</label>
+          <input id="add-contact-name" class="text-field" type="text" placeholder="Nome para salvar">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="add-contact-cancel" class="btn btn-secondary" type="button">Cancelar</button>
+        <button id="add-contact-confirm" class="btn btn-primary" type="button">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         DELETE MESSAGES MODAL
+         ═══════════════════════════════════ -->
+  <div id="delete-messages-modal" class="overlay hidden">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal-title" style="margin-bottom:var(--space-2)">Apagar mensagens?</h2>
+      <div class="modal-body"
+        style="font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:var(--space-4)">
+        Esta ação não poderá ser desfeita.
+      </div>
+      <div style="display:flex; flex-direction:column; gap:var(--space-2)">
+        <button id="btn-delete-for-everyone" class="btn btn-primary hidden" type="button" style="width:100%">Apagar para
+          Todos</button>
+        <button id="btn-delete-for-me" class="btn btn-secondary" type="button" style="width:100%">Apagar para
+          Mim</button>
+        <button id="btn-delete-cancel" class="btn" type="button"
+          style="width:100%;background:transparent;color:var(--primary)">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         IMAGE VIEWER
+         ═══════════════════════════════════ -->
+  <div id="image-viewer" class="image-viewer hidden">
+    <div class="image-viewer-header">
+      <button id="image-viewer-close" class="icon-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+    <div class="image-viewer-body">
+      <img id="image-viewer-img" src="" alt="Imagem">
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+         MEDIA PREVIEW (before sending)
+         ═══════════════════════════════════ -->
+  <div id="media-preview" class="media-preview-overlay hidden">
+    <div class="media-preview-header">
+      <button id="media-preview-close" class="icon-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+    <div class="media-preview-body">
+      <img id="media-preview-img" src="" alt="Preview">
+    </div>
+    <div class="media-preview-footer">
+      <input id="media-caption" class="text-field" type="text" placeholder="Adicionar legenda...">
+      <button id="media-send-btn" class="send-btn" type="button">
+        <svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registrado!', reg))
+          .catch(err => console.log('Erro ao registrar SW:', err));
+      });
+    }
+  </script>
+
+  <!-- JavaScript -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/emoji.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/contacts.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

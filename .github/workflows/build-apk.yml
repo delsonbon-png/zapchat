@@ -1,0 +1,43 @@
+name: Build Android APK (TWA)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Build APK
+        run: |
+          # Bubblewrap needs a bit of configuration for CI
+          # We use generic values that the user can change later
+          bubblewrap init --manifest=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/manifest.json --nonInteractive --noPrompt
+          bubblewrap build --nonInteractive --noPrompt
+        continue-on-error: true # Just in case the automatic init fails without a real URL yet
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapchat-apk
+          path: ./*.apk
