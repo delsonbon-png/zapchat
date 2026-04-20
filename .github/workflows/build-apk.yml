@@ -40,7 +40,8 @@ jobs:
 
       - name: Accept Android Licenses
         run: |
-          yes | sdkmanager --licenses --sdk_root=/usr/local/lib/android/sdk
+          # Use full path to sdkmanager
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/usr/local/lib/android/sdk
 
       - name: Generate Temporary Signing Key
         run: |
