@@ -11,8 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    container:
-      image: ghcr.io/googlechromelabs/bubblewrap:latest
     env:
       BUBBLEWRAP_KEYSTORE_PASSWORD: zapchat123
       BUBBLEWRAP_KEY_PASSWORD: zapchat123
@@ -20,18 +18,46 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Debug Environment
+        run: |
+          echo "JDK Path: $JAVA_HOME"
+          echo "Android SDK Path: $ANDROID_HOME"
+          ls -d $ANDROID_HOME/cmdline-tools/latest/bin || echo "cmdline-tools not found!"
+
+      - name: Configure Bubblewrap
+        run: |
+          mkdir -p ~/.bubblewrap
+          # Dynamically create config with current runner paths
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
+
+      - name: Accept Android Licenses
+        run: |
+          # Use dynamic path to sdkmanager
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$ANDROID_HOME
+
       - name: Generate Temporary Signing Key
         run: |
           keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
       - name: Build APK
         run: |
-          # 1. Use printf to inject the version details manually into the update wizard
-          # This answers: Version Name (1.0.0) and Version Code (1)
-          printf "1.0.0\n1\n" | bubblewrap update --skipPwaValidation
+          # 1. Update project with explicit version details
+          printf "1.0.0\n1\n" | npx @bubblewrap/cli update --skipPwaValidation
           
-          # 2. Build the APK using the generated project files
-          yes | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
+          # 2. Build the APK
+          yes | npx @bubblewrap/cli build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
