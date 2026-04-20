@@ -42,9 +42,9 @@ jobs:
 
       - name: Build APK
         run: |
-          # Use 'yes' to bypass any remaining licenses/prompts and build/update
-          yes | bubblewrap update
-          yes | bubblewrap build --signingKeyPath="./android.keystore" --signingKeyAlias="android" --signingKeyPassword="zapchat123" --signingKeyStorePassword="zapchat123"
+          # Use 'yes ""' to send Enters (newlines) instead of 'y'
+          yes "" | bubblewrap update
+          yes "" | bubblewrap build --signingKeyPath="./android.keystore" --signingKeyAlias="android" --signingKeyPassword="zapchat123" --signingKeyStorePassword="zapchat123"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

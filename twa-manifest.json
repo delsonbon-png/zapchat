@@ -7,7 +7,7 @@
   "navigationColor": "#1F2C33",
   "backgroundColor": "#111B21",
   "enableNotifications": true,
-  "startUrl": "/",
+  "startUrl": "/zapchat/",
   "display": "standalone",
   "orientation": "portrait",
   "iconUrl": "https://delsonbon-png.github.io/zapchat/icon.png",
