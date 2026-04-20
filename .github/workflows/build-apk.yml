@@ -26,9 +26,11 @@ jobs:
 
       - name: Build APK
         run: |
-          # Inside the official container, everything is pre-configured.
-          # We just need to ensure bubblewrap ignores PWA validation and used the key.
-          yes | bubblewrap update --appVersionName "1.0.0" --skipVersionUpgrade --skipPwaValidation
+          # 1. Use printf to inject the version details manually into the update wizard
+          # This answers: Version Name (1.0.0) and Version Code (1)
+          printf "1.0.0\n1\n" | bubblewrap update --skipPwaValidation
+          
+          # 2. Build the APK using the generated project files
           yes | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
