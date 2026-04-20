@@ -35,7 +35,12 @@ jobs:
       - name: Configure Bubblewrap Environment
         run: |
           mkdir -p ~/.bubblewrap
-          echo "{\"jdkPath\":\"${JAVA_HOME}\",\"androidSdkPath\":\"${ANDROID_SDK_ROOT}\"}" > ~/.bubblewrap/config.json
+          # Use absolute paths for the GitHub runner
+          echo "{\"jdkPath\":\"/usr/lib/jvm/temurin-17-jdk-amd64\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
+
+      - name: Accept Android Licenses
+        run: |
+          yes | sdkmanager --licenses --sdk_root=/usr/local/lib/android/sdk
 
       - name: Generate Temporary Signing Key
         run: |
@@ -43,7 +48,7 @@ jobs:
 
       - name: Build APK
         run: |
-          # Use yes to accept licenses/prompts and provide explicit version details
+          # Build with explicit versioning and skip PWA validation
           yes | bubblewrap update --appVersionName "1.0.0" --skipVersionUpgrade --skipPwaValidation
           yes | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
