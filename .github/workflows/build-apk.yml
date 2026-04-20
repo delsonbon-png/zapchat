@@ -10,6 +10,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BUBBLEWRAP_KEYSTORE_PASSWORD: zapchat123
+      BUBBLEWRAP_KEY_PASSWORD: zapchat123
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,20 +35,17 @@ jobs:
       - name: Configure Bubblewrap Environment
         run: |
           mkdir -p ~/.bubblewrap
-          # Define paths for JDK and Android SDK in the GitHub Runner
           echo "{\"jdkPath\":\"${JAVA_HOME}\",\"androidSdkPath\":\"${ANDROID_SDK_ROOT}\"}" > ~/.bubblewrap/config.json
-          echo "Bubblewrap environment configured."
 
       - name: Generate Temporary Signing Key
         run: |
-          # Only generate if it doesn't exist (though it's a fresh runner)
           keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
       - name: Build APK
         run: |
-          # Use 'yes ""' to send Enters (newlines) instead of 'y'
-          yes "" | bubblewrap update
-          yes "" | bubblewrap build --signingKeyPath="./android.keystore" --signingKeyAlias="android" --signingKeyPassword="zapchat123" --signingKeyStorePassword="zapchat123"
+          # Use yes "" to bypass any remaining prompts and run with skipPwaValidation
+          yes "" | bubblewrap update --skipPwaValidation
+          yes "" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
