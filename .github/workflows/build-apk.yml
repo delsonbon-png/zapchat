@@ -28,13 +28,22 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
+      - name: Configure Bubblewrap Environment
+        run: |
+          mkdir -p ~/.bubblewrap
+          # Define paths for JDK and Android SDK in the GitHub Runner
+          echo "{\"jdkPath\":\"${JAVA_HOME}\",\"androidSdkPath\":\"${ANDROID_SDK_ROOT}\"}" > ~/.bubblewrap/config.json
+          echo "Bubblewrap environment configured."
+
+      - name: Generate Temporary Signing Key
+        run: |
+          # Only generate if it doesn't exist (though it's a fresh runner)
+          keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
+
       - name: Build APK
         run: |
-          # Bubblewrap needs a bit of configuration for CI
-          # We use generic values that the user can change later
-          bubblewrap init --manifest=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/manifest.json --nonInteractive --noPrompt
-          bubblewrap build --nonInteractive --noPrompt
-        continue-on-error: true # Just in case the automatic init fails without a real URL yet
+          # Use 'yes' to bypass any remaining licenses/prompts and build
+          yes | bubblewrap build --signingKeyPath="./android.keystore" --signingKeyAlias="android" --signingKeyPassword="zapchat123" --signingKeyStorePassword="zapchat123"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

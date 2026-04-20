@@ -1,0 +1,30 @@
+{
+  "packageId": "com.zapchat.twa",
+  "host": "delsonbon-png.github.io",
+  "name": "ZapChat",
+  "launcherName": "ZapChat",
+  "themeColor": "#1F2C33",
+  "navigationColor": "#1F2C33",
+  "backgroundColor": "#111B21",
+  "enableNotifications": true,
+  "startUrl": "/zapchat/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [],
+  "features": {
+    "locationDelegation": true,
+    "playBilling": false
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fallbackType": "customtabs"
+}
