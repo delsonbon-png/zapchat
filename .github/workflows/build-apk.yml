@@ -29,27 +29,34 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Fix Android SDK Structure (Symlink)
+        run: |
+          # Bubblewrap expects a 'tools' directory which is legacy.
+          # We symlink the modern 'cmdline-tools/latest' to 'tools' to satisfy it.
+          sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
+          echo "Symlink created at $ANDROID_HOME/tools"
+
       - name: Configure Bubblewrap
         run: |
-          mkdir -p ~/.bubblewrap
-          # Set absolute paths for GitHub Action hosted runner
-          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
-          cat ~/.bubblewrap/config.json
+          # Install CLI temporarily to run updateConfig
+          npm install -g @bubblewrap/cli
+          # Use absolute paths and the newly created symlink path
+          bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
 
       - name: Accept Android Licenses
         run: |
-          # Force accept licenses using the absolute path to sdkmanager
-          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/usr/local/lib/android/sdk
+          # Use full path to sdkmanager
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$ANDROID_HOME
 
       - name: Generate Temporary Signing Key
         run: |
-          # Create keystore if it doesn't exist
+          # Create keystore
           keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
       - name: Build APK
         run: |
-          # Use printf to inject the version info and bypass the update prompt
-          printf "1.0.0\n1\n" | npx @bubblewrap/cli build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
+          # Inject version info and build
+          printf "1.0.0\n1\n" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
