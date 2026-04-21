@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     env:
       BUBBLEWRAP_KEYSTORE_PASSWORD: zapchat123
       BUBBLEWRAP_KEY_PASSWORD: zapchat123
@@ -23,16 +23,32 @@ jobs:
         with:
           node-version: 18
 
-      - name: Setup Bubblewrap Environment
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure Bubblewrap
         run: |
-          # Use yes "" to hit "Enter" on all installation prompts (JDK and Android SDK)
-          # This step will download about 200MB of tools.
-          yes "" | npx @bubblewrap/cli doctor
+          mkdir -p ~/.bubblewrap
+          # Set absolute paths for GitHub Action hosted runner
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"/usr/local/lib/android/sdk\"}" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
+
+      - name: Accept Android Licenses
+        run: |
+          # Force accept licenses using the absolute path to sdkmanager
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/usr/local/lib/android/sdk
+
+      - name: Generate Temporary Signing Key
+        run: |
+          # Create keystore if it doesn't exist
+          keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
       - name: Build APK
         run: |
-          # Now that tools are installed, we just need to provide the version info.
-          # printf "1.0.0\n1\n" provides the Version Name and Version Code.
+          # Use printf to inject the version info and bypass the update prompt
           printf "1.0.0\n1\n" | npx @bubblewrap/cli build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
