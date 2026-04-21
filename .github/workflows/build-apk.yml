@@ -31,22 +31,14 @@ jobs:
 
       - name: Fix Android SDK Structure
         run: |
-          # Create the 'tools' symlink that Bubblewrap expects
           if [ ! -d "$ANDROID_HOME/tools" ]; then
             sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
           fi
-          # Verify the structure
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "JAVA_HOME=$JAVA_HOME"
-          ls -la $ANDROID_HOME/tools/
 
-      - name: Configure Bubblewrap (No Prompts)
+      - name: Configure Bubblewrap
         run: |
-          # Write config.json directly - NO interactive commands
           mkdir -p ~/.bubblewrap
           echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
-          echo "Config written:"
-          cat ~/.bubblewrap/config.json
 
       - name: Accept Android Licenses
         run: |
@@ -59,10 +51,17 @@ jobs:
         run: |
           keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
+      - name: Generate Android Project
+        run: |
+          # Step 1: Run update to generate the Android project files (gradlew, etc.)
+          # It asks for versionName and versionCode
+          printf "1.0.0\n1\n" | bubblewrap update --skipPwaValidation
+
       - name: Build APK
         run: |
-          # Inject version name + code, then build
-          printf "1.0.0\n1\n" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
+          # Step 2: Build the APK. Answer "no" to the regenerate prompt since
+          # we just generated the project in the previous step.
+          echo "no" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
