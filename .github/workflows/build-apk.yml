@@ -29,33 +29,39 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Fix Android SDK Structure (Symlink)
+      - name: Fix Android SDK Structure
         run: |
-          # Bubblewrap expects a 'tools' directory which is legacy.
-          # We symlink the modern 'cmdline-tools/latest' to 'tools' to satisfy it.
-          sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
-          echo "Symlink created at $ANDROID_HOME/tools"
+          # Create the 'tools' symlink that Bubblewrap expects
+          if [ ! -d "$ANDROID_HOME/tools" ]; then
+            sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
+          fi
+          # Verify the structure
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          ls -la $ANDROID_HOME/tools/
 
-      - name: Configure Bubblewrap
+      - name: Configure Bubblewrap (No Prompts)
         run: |
-          # Install CLI temporarily to run updateConfig
-          npm install -g @bubblewrap/cli
-          # Use absolute paths and the newly created symlink path
-          bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+          # Write config.json directly - NO interactive commands
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+          echo "Config written:"
+          cat ~/.bubblewrap/config.json
 
       - name: Accept Android Licenses
         run: |
-          # Use full path to sdkmanager
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$ANDROID_HOME
+
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
 
       - name: Generate Temporary Signing Key
         run: |
-          # Create keystore
           keytool -genkey -v -keystore android.keystore -alias android -keyalg RSA -keysize 2048 -validity 10000 -storepass zapchat123 -keypass zapchat123 -dname "CN=ZapChat, OU=Dev, O=ZapChat, L=Local, S=Dev, C=US"
 
       - name: Build APK
         run: |
-          # Inject version info and build
+          # Inject version name + code, then build
           printf "1.0.0\n1\n" | bubblewrap build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
