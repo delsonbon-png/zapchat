@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       BUBBLEWRAP_KEYSTORE_PASSWORD: zapchat123
       BUBBLEWRAP_KEY_PASSWORD: zapchat123
@@ -23,16 +23,17 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build APK (Self-Healing Mode)
+      - name: Setup Bubblewrap Environment
         run: |
-          # The "Ultimate" automation:
-          # First \n: Accept Bubblewrap JDK installation
-          # Second \n: Accept Bubblewrap Android SDK installation
-          # 1.0.0: App Version Name
-          # 1: App Version Code (for build)
-          # We use one long printf to ensure the wizard is completed.
-          
-          printf "\n\n1.0.0\n1\n" | npx @bubblewrap/cli build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
+          # Use yes "" to hit "Enter" on all installation prompts (JDK and Android SDK)
+          # This step will download about 200MB of tools.
+          yes "" | npx @bubblewrap/cli doctor
+
+      - name: Build APK
+        run: |
+          # Now that tools are installed, we just need to provide the version info.
+          # printf "1.0.0\n1\n" provides the Version Name and Version Code.
+          printf "1.0.0\n1\n" | npx @bubblewrap/cli build --skipPwaValidation --signingKeyPath="./android.keystore" --signingKeyAlias="android"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
