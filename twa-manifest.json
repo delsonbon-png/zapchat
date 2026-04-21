@@ -28,5 +28,7 @@
   },
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fallbackType": "customtabs"
+  "fallbackType": "customtabs",
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true
 }
